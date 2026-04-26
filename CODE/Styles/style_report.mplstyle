@@ -1,0 +1,33 @@
+# ── Font ──────────────────────────────────────────────────
+font.family        : serif
+font.serif         : EB Garamond, Garamond, Georgia, serif
+font.size          : 9
+axes.titlesize     : 10
+axes.labelsize     : 9
+xtick.labelsize    : 8
+ytick.labelsize    : 8
+legend.fontsize    : 8
+
+# ── Color ────────────────────────────────────────────────
+axes.prop_cycle    : cycler('color', ['6B1A1A', '2B2B2B', '8C3A3A', 'AAAAAA', '4A4A4A'])
+axes.edgecolor     : 2B2B2B
+axes.linewidth     : 0.6
+axes.spines.top    : False
+axes.spines.right  : False
+
+# ── Grid ──────────────────────────────────────────────────
+axes.grid          : True
+grid.color         : DDDDDD
+grid.linewidth     : 0.4
+grid.linestyle     : --
+
+# ── Lines ──────────────────────────────────────────────────
+lines.linewidth    : 1.2
+patch.linewidth    : 0.5
+
+# ── Figures ──────────────────────────────────────────────────
+figure.facecolor   : white
+figure.dpi         : 150
+savefig.dpi        : 300
+savefig.facecolor  : white
+savefig.bbox       : tight

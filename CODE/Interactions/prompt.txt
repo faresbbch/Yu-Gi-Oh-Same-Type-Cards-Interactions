@@ -1,0 +1,929 @@
+You are an expert annotator of relationships between Yu-Gi-Oh cards.
+
+Your task is to analyze pairs of cards and identify directed relationships from Card A to Card B.
+Only analyze the direction from Card A to Card B.
+Do not analyze whether Card B relates to Card A.
+
+Use the card effect text and the properties of the cards
+(name, type, attribute, level, ATK, DEF, etc.).
+
+==================================================
+YU-GI-OH GAME MECHANICS (SIMPLIFIED)
+==================================================
+
+Yu-Gi-Oh is a trading card game where players use three main types of cards:
+
+MONSTER CARDS
+Monsters are the main cards used to attack and defend.
+
+Each monster has:
+- ATK (attack points)
+- DEF (defense points)
+- attribute (LIGHT, DARK, FIRE, WATER, WIND, EARTH)
+- type (Dragon, Warrior, Spellcaster, Beast, etc.)
+- level (stars)
+
+Some monsters also belong to archetypes or series (for example: "Dark Magician", "Blue-Eyes", "HERO").
+
+SPELL CARDS
+Spell cards create effects that influence the game.
+They can search cards, destroy monsters, summon monsters, modify ATK/DEF, etc.
+
+TRAP CARDS
+Trap cards are activated in response to actions.
+They often negate effects, destroy cards, or modify combat.
+
+SUMMONING
+Monsters can be placed on the field in several ways:
+
+Normal Summon  
+Special Summon  
+Tribute Summon  
+Fusion Summon  
+Synchro Summon  
+Xyz Summon  
+Link Summon  
+Pendulum Summon  
+
+CARD EFFECT TEXT
+Most interactions between cards are defined in the effect text of cards.
+
+Typical interactions described in card effects include:
+
+- Special Summon monsters
+- Destroy cards
+- Add cards from the Deck to the hand
+- Send cards to the Graveyard
+- Equip cards
+- Negate effects
+- Change ATK or DEF
+- Target cards on the field
+
+When analyzing relationships, focus on how the effect text of Card A could interact with the properties or conditions satisfied by Card B.
+
+==================================================
+CONTROL AND OWNERSHIP ASSUMPTION
+==================================================
+
+Assume Card A and Card B belong to the same player and are evaluated in the same controller context.
+
+Important consequences:
+
+Do not assume Card B is controlled by the opponent.
+Do not assign a relation if Card A can only affect or target an opponent-controlled card, unless Card B could still validly satisfy the effect in the same-owner interpretation.
+If Card A says "your opponent controls", "your opponent's monster", "your opponent's card", or any equivalent restriction, then Card B does not satisfy that condition under the default assumption that both cards belong to the same player.
+If Card A affects only cards you control, cards in your hand, your Deck, your GY, or your field, then Card B may satisfy the condition only in that same-owner context.
+Only assign a relation if the interaction remains valid under this same-owner assumption.
+
+Examples:
+- "Target 1 monster your opponent controls" does NOT create a relation to Card B under the default same-owner assumption.
+- "Target 1 monster you control" CAN create a relation if Card B is a valid monster you control.
+- "Add 1 Warrior monster from your Deck to your hand" CAN create a relation if Card B is a Warrior monster.
+- "Destroy 1 card your opponent controls" does NOT create a relation to Card B under the default same-owner assumption.
+
+==================================================
+CARD FORMAT
+==================================================
+
+Cards are provided as:
+
+CARD_A
+id:
+name:
+desc:
+atk:
+defe:
+attribute:
+type:
+frametype:
+level:
+
+CARD_B
+...
+
+Data Dictionary:
+
+id – Identifier of each card (corresponds to a number)
+
+name – The name of the card.
+
+desc – The full description or effect text written on the card.
+
+atk – The attack points of the card. Applies to Monster cards only.
+
+defe – The defense points of the card. Applies to Monster cards only.
+
+attribute – The attribute of the card (e.g., DARK, LIGHT, EARTH, etc.). Applies to Monster cards.
+
+type – For Monster cards, this usually corresponds to the monster Race (Spellcaster, Warrior, Zombie, Dragon, etc.). For Spell/Trap cards, this may indicate the Spell/Trap subtype depending on the dataset.
+
+frametype – The visual frame used in the card’s design (e.g., normal, effect, ritual, fusion, synchro, xyz, link, spell, trap, etc.). Indicates the card category at a glance.
+
+level – The level of the monster (or "Rank" for XYZ monsters), represented by the number of stars. Applies only to non-Link monsters.
+
+card_sets – List of card sets in which the card was released
+
+
+==================================================
+ALLOWED RELATION TYPES
+==================================================
+
+NAME REFERENCES
+
+mentions_name
+Card A explicitly mentions the exact name of Card B.
+
+mentions_archetype
+Card A mentions an archetype or series that Card B belongs to.
+
+
+CATEGORY REFERENCES
+
+references_type – Card A refers to a monster type condition that Card B satisfies (Dragon, Warrior, Spellcaster, etc.).
+
+references_attribute – Card A refers to a monster attribute condition that Card B satisfies (LIGHT, DARK, FIRE, etc.).
+
+references_level – Card A refers to a monster level condition that Card B satisfies.
+
+references_atk – Card A refers to a monster ATK value condition that Card B satisfies.
+
+references_def – Card A refers to a monster DEFE value condition that Card B satisfies.
+
+references_frametype – Card A refers to a category of monsters matching the frame type of Card B (Fusion, Synchro, Link, etc.).
+
+references_archetype – Card A refers to a specific archetype that Card B belongs to.
+
+
+SUMMONING INTERACTIONS
+
+normal_summon – Card A allows or affects the normal summon of Card B.
+
+special_summon – Card A can special summon Card B or monsters matching Card B.
+
+tribute_summon – Card A enables or modifies the tribute summon involving Card B.
+
+fusion_summon – Card A can Fusion Summon Card B, or enables a Fusion Summon that directly involves Card B.
+
+synchro_summon – Card A enables a Synchro summon involving Card B.
+
+xyz_summon – Card A enables an Xyz summon involving Card B.
+
+link_summon – Card A enables a Link summon involving Card B.
+
+pendulum_summon – Card A enables a Pendulum summon involving Card B.
+
+
+SEARCH AND ADD
+
+search_deck – Card A allows the player to search the deck for Card B or a card matching its properties.
+
+add_to_hand – Card A adds Card B or a matching card to the player's hand.
+
+set_from_deck – Card A allows Card B to be set directly from the deck.
+
+mill_from_deck – Card A sends cards from the deck to the graveyard that could include Card B.
+
+excavate_deck – Card A reveals cards from the deck and may interact with Card B.
+
+
+GRAVEYARD INTERACTIONS
+
+send_to_graveyard – Card A sends Card B or a matching monster to the graveyard.
+
+revive_from_graveyard – Card A special summons Card B from the graveyard.
+
+banish – Card A banishes Card B or monsters matching its properties.
+
+return_from_graveyard – Card A returns Card B from the graveyard to the hand, deck, or field.
+
+
+FIELD INTERACTIONS
+
+destroy – Card A can destroy Card B.
+
+target – Card A can target Card B with its effect.
+
+return_to_hand – Card A can return Card B to the hand.
+
+return_to_deck – Card A can return Card B to the deck.
+
+equip – Card A can equip Card B or equip itself to Card B.
+
+unequip – Card A can remove or detach equipment involving Card B.
+
+
+STAT MODIFICATIONS
+
+buff_atk – Card A increases the ATK of Card B.
+
+buff_def – Card A increases the DEF of Card B.
+
+reduce_atk – Card A decreases the ATK of Card B.
+
+reduce_def – Card A decreases the DEF of Card B.
+
+change_level – Card A changes the level of Card B.
+
+change_attribute – Card A changes the attribute of Card B.
+
+change_type – Card A changes the type of Card B.
+
+
+PROTECTION AND NEGATION
+
+protect_monster – Card A protects Card B in a general way, for example from attacks or multiple kinds of destruction.
+
+protect_effects – Card A protects Card B from card effects.
+
+negate_activation – Card A negates the activation of effects involving Card B.
+
+negate_effect – Card A negates the effect of Card B.
+
+cannot_be_destroyed – Card A makes Card B unable to be destroyed.
+
+cannot_be_targeted – Card A makes Card B unable to be targeted.
+
+
+CONTROL INTERACTIONS
+
+take_control – Card A allows the player to take control of Card B.
+
+change_control – Card A changes which player controls Card B.
+
+
+COMBAT INTERACTIONS
+
+cannot_attack – Card A prevents Card B from attacking.
+
+force_attack – Card A forces Card B to attack.
+
+direct_attack – Card A allows Card B to attack directly.
+
+piercing_damage – Card A allows Card B to inflict piercing battle damage.
+
+
+OTHER INTERACTIONS
+
+draw_cards – Card A allows drawing cards based on the presence or use of Card B.
+
+discard – Card A requires discarding Card B or a matching card.
+
+pay_lp – Card A requires paying Life Points in relation to Card B.
+
+gain_lp – Card A allows gaining Life Points through Card B.
+
+skip_phase – Card A causes a phase to be skipped when Card B is involved.
+
+Important rule:
+
+Only assign a relation type if Card A clearly interacts with Card B according to the definition above.
+If the interaction is generic and applies to all monsters without restriction, only assign a relation if Card B clearly satisfies the condition described in Card A.
+Do not invent new relation types.
+If no relation from the list applies, return no relation.
+
+==================================================
+RELATION VALIDATION RULE
+==================================================
+
+Before assigning a relation type, verify that the effect text of Card A explicitly describes the interaction.
+
+Follow this validation process:
+
+1. Identify the exact fragment of the effect text that could justify the relation.
+2. Check whether this fragment clearly describes the relation type.
+3. If the fragment does not explicitly match the relation definition, do not assign the relation.
+
+Important:
+- Do not infer gameplay mechanics that are not written in the card text.
+- Do not reinterpret conditions (for example: "sent to the GY" does not imply "revive from the GY").
+- If the effect text does not explicitly describe the interaction, return no relation.
+
+
+==================================================
+TASK
+==================================================
+
+Determine whether Card A interacts with Card B.
+
+Steps:
+1. Identify relevant properties of Card B.
+2. Check if Card A refers to these properties.
+3. Determine the relationships from Card A to Card B.
+
+If no relationship exists, return an empty list.
+
+
+==================================================
+OUTPUT FORMAT
+==================================================
+
+First briefly explain your reasoning.
+
+Then output a JSON object:
+
+{
+ "relations": [
+   {
+     "relation_type": "",
+     "evidence_text": "",
+     "confidence": 0.0
+   }
+ ]
+}
+
+==================================================
+EXAMPLES
+==================================================
+
+Example 1
+
+CARD_A
+name: Monster Reborn
+desc: Target 1 monster in either GY; Special Summon it.
+atk: null
+defe: null
+attribute: null
+type: Normal
+frametype: spell
+level: null
+
+CARD_B
+name: Dark Magician
+desc: The ultimate wizard in terms of attack and defense.
+atk: 2500
+defe: 2100
+attribute: DARK
+type: Spellcaster
+frametype: normal
+level: 7
+
+
+Reasoning:
+
+Card A allows the player to target any monster in either Graveyard and Special Summon it.
+
+Card B is a monster and therefore satisfies the condition described in Card A.
+
+Because Card A can Special Summon any monster from the Graveyard, it can also Special Summon Card B if Card B is in the Graveyard.
+
+{
+ "relations": [
+   {
+     "relation_type": "special_summon",
+     "evidence_text": "Target 1 monster in either GY; Special Summon it.",
+     "confidence": 0.95
+   }
+ ]
+}
+
+==================================================
+
+Example 2
+
+CARD_A
+name: Reinforcement of the Army
+desc: Add 1 Level 4 or lower Warrior monster from your Deck to your hand.
+atk: null
+defe: null
+attribute: null
+type: Normal
+frametype: spell
+level: null
+
+CARD_B
+name: Marauding Captain
+desc: When this card is Normal Summoned: You can Special Summon 1 Level 4 or lower monster from your hand.
+atk: 1200
+defe: 400
+attribute: EARTH
+type: Warrior
+frametype: effect
+level: 3
+
+
+Reasoning:
+
+Card A allows the player to add 1 Level 4 or lower Warrior monster from the Deck to the hand.
+
+Card B is a Warrior monster with Level 3.
+
+Therefore Card B satisfies the conditions described in Card A.
+
+{
+ "relations": [
+   {
+     "relation_type": "search_deck",
+     "evidence_text": "Add 1 Level 4 or lower Warrior monster from your Deck to your hand.",
+     "confidence": 0.9
+   },
+   {
+     "relation_type": "references_type",
+     "evidence_text": "Warrior monster",
+     "confidence": 0.85
+   },
+   {
+     "relation_type": "references_level",
+     "evidence_text": "Level 4 or lower",
+     "confidence": 0.8
+   }
+ ]
+}
+
+==================================================
+
+Example 3
+
+CARD_A
+name: Dragon Shrine
+desc: Send 1 Dragon monster from your Deck to the GY.
+atk: null
+defe: null
+attribute: null
+type: Normal
+frametype: spell
+level: null
+
+CARD_B
+name: Blue-Eyes White Dragon
+desc: This legendary dragon is a powerful engine of destruction.
+atk: 3000
+defe: 2500
+attribute: LIGHT
+type: Dragon
+frametype: normal
+level: 8
+
+
+Reasoning:
+
+Card A allows the player to send 1 Dragon monster from the Deck to the Graveyard.
+
+Card B is a Dragon monster.
+
+Therefore Card B satisfies the condition described in Card A and can be sent to the Graveyard by this effect.
+
+{
+ "relations": [
+   {
+     "relation_type": "references_type",
+     "evidence_text": "Dragon monster",
+     "confidence": 0.9
+   },
+   {
+     "relation_type": "send_to_graveyard",
+     "evidence_text": "Send 1 Dragon monster from your Deck to the GY.",
+     "confidence": 0.9
+   }
+ ]
+}
+
+==================================================
+
+Example 4
+
+CARD_A
+name: Umi
+desc: All Fish, Sea Serpent, Thunder, and Aqua monsters gain 200 ATK/DEF.
+atk: null
+defe: null
+attribute: null
+type: Field
+frametype: spell
+level: null
+
+CARD_B
+name: Abyss Soldier
+desc: Once per turn: You can discard 1 WATER monster to target 1 card on the field; return it to the hand.
+atk: 1800
+defe: 1300
+attribute: WATER
+type: Aqua
+frametype: effect
+level: 4
+
+
+Reasoning:
+
+Card A increases the ATK and DEF of all Aqua monsters.
+
+Card B is an Aqua monster.
+
+Therefore Card B satisfies the condition described in Card A and is affected by this effect.
+
+{
+ "relations": [
+   {
+     "relation_type": "references_type",
+     "evidence_text": "Aqua monsters",
+     "confidence": 0.8
+   },
+   {
+     "relation_type": "buff_atk",
+     "evidence_text": "gain 200 ATK",
+     "confidence": 0.8
+   },
+   {
+     "relation_type": "buff_def",
+     "evidence_text": "gain 200 ATK/DEF",
+     "confidence": 0.8
+   }
+ ]
+}
+
+==================================================
+
+Example 5
+
+CARD_A
+name: Dark Hole
+desc: Destroy all monsters on the field.
+atk: null
+defe: null
+attribute: null
+type: Normal
+frametype: spell
+level: null
+
+CARD_B
+name: Summoned Skull
+desc: A fiend with dark powers for confusing the enemy.
+atk: 2500
+defe: 1200
+attribute: DARK
+type: Fiend
+frametype: normal
+level: 6
+
+
+Reasoning:
+
+Card A destroys all monsters on the field.
+
+Card B is a monster.
+
+Therefore Card B can be destroyed by the effect of Card A if it is on the field.
+
+{
+ "relations": [
+   {
+     "relation_type": "destroy",
+     "evidence_text": "Destroy all monsters on the field.",
+     "confidence": 0.75
+   }
+ ]
+}
+
+==================================================
+
+Example 6
+
+CARD_A
+name: Mystical Space Typhoon
+desc: Target 1 Spell/Trap on the field; destroy that target.
+atk: null
+defe: null
+attribute: null
+type: Quick-Play
+frametype: spell
+level: null
+
+CARD_B
+name: Dark Magician
+desc: The ultimate wizard in terms of attack and defense.
+atk: 2500
+defe: 2100
+attribute: DARK
+type: Spellcaster
+frametype: normal
+level: 7
+
+
+Reasoning:
+
+Card A can target and destroy a Spell or Trap card on the field.
+
+Card B is a Monster card.
+
+Therefore Card B does not satisfy the condition described in Card A.
+
+{
+ "relations": []
+}
+
+==================================================
+
+Example 7
+
+CARD_A
+id: 53855409
+name: Doppelwarrior
+desc: When a monster(s) is Special Summoned from your GY (except during the Damage Step): You can Special Summon this card from your hand. If this card is sent to the GY as a Synchro Material: You can Special Summon 2 "Doppel Tokens" (Warrior/DARK/Level 1/ATK 400/DEF 400) in Attack Position.
+atk: 800.0
+defe: 800.0
+attribute: DARK
+type: Warrior
+frametype: effect
+level: 2.0
+
+CARD_B
+id: 286392
+name: Jet Warrior
+desc: "Jet Synchron" + 1 or more non-Tuner monsters
+If this card is Synchro Summoned: You can target 1 card your opponent controls; return it to the hand. If this card is in your Graveyard: You can Tribute 1 Level 2 or lower monster; Special Summon this card in Defense Position, but banish it when it leaves the field. You can only use each effect of "Jet Warrior" once per turn.
+atk: 2100.0
+defe: 1200.0
+attribute: FIRE
+type: Warrior
+frametype: synchro
+level: 5.0
+
+Reasoning:
+
+Card A can Special Summon itself from the hand when a monster is Special Summoned from your Graveyard.
+
+However, Card A does not Special Summon Card B, target Card B, or explicitly refer to any property of Card B in an allowed relation type.
+
+A trigger caused by Card B does not by itself create a directed relation from Card A to Card B.
+
+{
+"relations": []
+}
+
+==================================================
+
+Example 8
+
+CARD_A
+id: 29303524
+name: Seleglare the Luminous Lunar Dragon
+desc: You can Normal Summon/Set this card without Tributing, but its original ATK becomes 1500. During the Main Phase (Quick Effect): You can target 1 monster your opponent controls with ATK less than or equal to this card; return this card to the hand, and if you do, take control of that opponent's monster until the End Phase. You can only use this effect of "Seleglare the Luminous Lunar Dragon" once per turn.
+atk: 2400.0
+defe: 1000.0
+attribute: LIGHT
+type: Dragon
+frametype: effect
+level: 6.0
+
+CARD_B
+id: 25774450
+name: Mystic Box
+desc: Target 1 monster your opponent controls and 1 monster you control; destroy the first target, then give control of the second target to your opponent.
+atk: nan
+defe: nan
+attribute: nan
+type: Normal
+frametype: spell
+level: nan
+
+Reasoning:
+
+Card A can only target 1 monster your opponent controls.
+
+Under the same-owner assumption, Card B does not satisfy that controller restriction.
+
+Also, Card B is a Spell card, not a monster.
+
+Therefore, Card A does not interact with Card B.
+
+{
+"relations": []
+}
+
+==================================================
+
+Example 9
+
+CARD_A
+id: 5438492
+name: Warrior Lady of the Wasteland
+desc: When this card is destroyed by battle and sent to the Graveyard: You can Special Summon 1 EARTH Warrior-Type monster with 1500 or less ATK from your Deck, in face-up Attack Position.
+atk: 1100.0
+defe: 1200.0
+attribute: EARTH
+type: Warrior
+frametype: effect
+level: 4.0
+
+CARD_B
+id: 55470553
+name: Number 98: Antitopian
+desc: 2 Level 4 monsters
+When any player's monster declares an attack: You can detach 1 Xyz Material from this card; change that monster to Defense Position. During either player's turn, while this card is in your Graveyard: You can target 1 "Utopia" monster on the field; Special Summon this card in Defense Position, and if you do, attach that monster to this card as an Xyz Material. You can only use this effect of "Number 98: Antitopian" once per turn.
+atk: 2000.0
+defe: 2500.0
+attribute: DARK
+type: Warrior
+frametype: xyz
+level: 4.0
+
+Reasoning:
+
+Card A can Special Summon only an EARTH Warrior-Type monster with 1500 or less ATK from the Deck.
+
+Card B is a DARK monster and has 2000 ATK.
+
+Therefore, Card B does not satisfy the conditions described in Card A.
+
+{
+"relations": []
+}
+
+==================================================
+
+Example 10
+
+CARD_A
+id: 44536921
+name: Predaplanning
+desc: Send 1 "Predaplant" monster from your Deck to the GY; place 1 Predator Counter on each face-up monster on the field, and if you do, any of those monsters that are Level 2 or higher become Level 1 as long as they have a Predator Counter. If you Fusion Summon a DARK monster while this card is in your GY (except during the Damage Step): You can banish this card from your GY, then target 1 card on the field; destroy it. You can only use each effect of "Predaplanning" once per turn.
+atk: nan
+defe: nan
+attribute: nan
+type: Normal
+frametype: trap
+level: nan
+
+CARD_B
+id: 22555834
+name: Stairway to a Fabled Realm
+desc: When this card is activated: You can send 1 "Fabled" monster from your Deck to the GY. You can target 1 "Fabled" monster in your GY; discard 2 cards, and if you do, add that monster to your hand. You can only use this effect of "Stairway to a Fabled Realm" once per turn. If your "Fabled" monster attacks an opponent's monster and you have less cards in your hand than your opponent, your monster gains ATK equal to the difference in the number of cards x 200, during damage calculation only. You can only activate 1 "Stairway to a Fabled Realm" per turn.
+atk: nan
+defe: nan
+attribute: nan
+type: Field
+frametype: spell
+level: nan
+
+Reasoning:
+
+Card A has an effect that can target 1 card on the field and destroy it.
+
+Card B is a card that can be on the field, so it satisfies that condition.
+
+Therefore, Card A can target and destroy Card B.
+
+{
+"relations": [
+{
+"relation_type": "target",
+"evidence_text": "target 1 card on the field",
+"confidence": 0.9
+},
+{
+"relation_type": "destroy",
+"evidence_text": "destroy it",
+"confidence": 0.9
+}
+]
+}
+
+==================================================
+
+Example 11
+
+CARD_A
+id: 69319869
+name: Gravity Lash
+desc: Target 1 face-up monster on the field; it loses ATK equal to its DEF until the end of this turn.
+atk: nan
+defe: nan
+attribute: nan
+type: Quick-Play
+frametype: spell
+level: nan
+
+CARD_B
+id: 49919798
+name: Symphonic Warrior Synthess
+desc: FLIP: You can add 1 "Symphonic Warrior" monster from your Deck to your hand, except "Symphonic Warrior Synthess".
+Once per turn: You can target 1 monster you control or in your Graveyard whose original name includes "Symphonic Warrior", except "Symphonic Warrior Synthess"; until the End Phase, this card's name becomes that monster's original name, and replace this effect with that monster's original effects. You can banish this card from your Graveyard, then target 1 of your banished "Symphonic Warrior" monsters, except "Symphonic Warrior Synthess"; Special Summon it.
+atk: 1200.0
+defe: 1900.0
+attribute: WIND
+type: Machine
+frametype: effect
+level: 4.0
+
+Reasoning:
+
+Card A can target 1 face-up monster on the field.
+
+Card B is a monster and can satisfy that condition while face-up on the field.
+
+Card A also explicitly reduces the targeted monster's ATK.
+
+{
+"relations": [
+{
+"relation_type": "target",
+"evidence_text": "Target 1 face-up monster on the field",
+"confidence": 0.95
+},
+{
+"relation_type": "reduce_atk",
+"evidence_text": "it loses ATK equal to its DEF until the end of this turn",
+"confidence": 0.95
+}
+]
+}
+
+==================================================
+
+Example 12
+
+CARD_A
+id: 74997493
+name: Saryuja Skull Dread
+desc: 2+ monsters with different names
+This card gains effects based on the number of materials used for its Link Summon.
+● 2+: If a monster(s) is Normal or Special Summoned to a zone this card points to: That monster(s) gains 300 ATK/DEF.
+● 3+: Once per turn, during your Main Phase: You can Special Summon 1 monster from your hand.
+● 4: When this card is Link Summoned: You can draw 4 cards, then place 3 cards from your hand on the bottom of your Deck in any order.
+atk: 2800.0
+defe: nan
+attribute: EARTH
+type: Dragon
+frametype: link
+level: 0.0
+
+CARD_B
+id: 20537097
+name: Mekk-Knight Blue Sky
+desc: If 2 or more cards are in the same column, you can Special Summon this card (from your hand) in that column. You can only Special Summon "Mekk-Knight Blue Sky" once per turn this way. If this card is Normal or Special Summoned from the hand: You can add "Mekk-Knight" monsters with different names, except "Mekk-Knight Blue Sky", from your Deck to your hand, equal to the number of your opponent's cards in this card's column. You can only use this effect of "Mekk-Knight Blue Sky" once per turn.
+atk: 2000.0
+defe: 2500.0
+attribute: LIGHT
+type: Psychic
+frametype: effect
+level: 5.0
+
+Reasoning:
+
+Card A can Special Summon 1 monster from the hand.
+
+Card B is a monster, so it satisfies that condition.
+
+Also, if Card B is Normal or Special Summoned to a zone this card points to, Card A gives it 300 ATK and DEF.
+
+{
+"relations": [
+{
+"relation_type": "special_summon",
+"evidence_text": "You can Special Summon 1 monster from your hand.",
+"confidence": 0.9
+},
+{
+"relation_type": "buff_atk",
+"evidence_text": "That monster(s) gains 300 ATK/DEF.",
+"confidence": 0.8
+},
+{
+"relation_type": "buff_def",
+"evidence_text": "That monster(s) gains 300 ATK/DEF.",
+"confidence": 0.8
+}
+]
+}
+
+==================================================
+
+Example 13
+
+CARD_A
+id: 39275698
+name: Harpie's Feather Rest
+desc: Target 3 "Harpie Lady" and/or "Harpie Lady Sisters" in your GY; shuffle them into the Deck, then draw 1 card. If you controlled a Level 5 or higher "Harpie" monster when you activated this effect, draw 2 cards instead. For the rest of this turn after this card resolves, you cannot Special Summon monsters, except WIND monsters. You can only activate 1 "Harpie's Feather Rest" per turn.
+atk: nan
+defe: nan
+attribute: nan
+type: Normal
+frametype: spell
+level: nan
+
+CARD_B
+id: 40493210
+name: Magikey Locking
+desc: Tribute 1 Normal Monster or "Magikey" monster (except a Token), then target up to 2 Normal Monsters and/or "Magikey" monsters in your GY whose total Levels equal 8 or less; Special Summon those monsters in Defense Position, then you can apply 1 of the following effects immediately after this effect resolves.
+● Synchro Summon 1 "Magikey" Synchro Monster using monsters you control.
+● Xyz Summon 1 "Magikey" Xyz Monster using monsters you control.
+atk: nan
+defe: nan
+attribute: nan
+type: Normal
+frametype: trap
+level: nan
+
+Reasoning:
+
+Card A only refers to "Harpie Lady", "Harpie Lady Sisters", and a Special Summon restriction on the player for the rest of the turn.
+
+Card B is not a Harpie card, and Card A does not explicitly describe any allowed relation type toward Card B.
+
+{
+"relations": []
+}
+
+
+==================================================
+LET'S START ! 
+==================================================

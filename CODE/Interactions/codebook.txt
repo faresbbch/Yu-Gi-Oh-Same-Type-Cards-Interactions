@@ -1,0 +1,155 @@
+Yu-Gi-Oh! Interaction Dataset – Codebook  
+Date of Data Collection: March 10th, 2026
+Date of publication: March 10th, 2026 
+Data Source: Local LLM llama3.1:8b 
+Author: Farès Blibeche
+
+Overview:  
+Each row of "interactions.csv" contains two cards (identified by id_cardA and id_cardB) and many binary variables representing a type of relation satisfied or not by a pair of cards. 
+
+
+Data Dictionary :
+
+------- NAME REFERENCES -------
+
+mentions_name – Card A explicitly mentions the exact name of Card B.
+
+mentions_archetype – Card A mentions an archetype or series that Card B belongs to.
+
+
+------- CATEGORY REFERENCES ------- 
+
+references_type – Card A refers to a monster type condition that Card B satisfies (Dragon, Warrior, Spellcaster, etc.).
+
+references_attribute – Card A refers to a monster attribute condition that Card B satisfies (LIGHT, DARK, FIRE, etc.).
+
+references_level – Card A refers to a monster level condition that Card B satisfies.
+
+references_atk – Card A refers to a monster ATK value condition that Card B satisfies.
+
+references_def – Card A refers to a monster DEFE value condition that Card B satisfies.
+
+references_frametype – Card A refers to a category of monsters matching the frame type of Card B (Fusion, Synchro, Link, etc.).
+
+references_archetype – Card A refers to a specific archetype that Card B belongs to.
+
+
+------- SUMMONING INTERACTIONS ------- 
+
+normal_summon – Card A allows or affects the normal summon of Card B.
+
+special_summon – Card A can special summon Card B or monsters matching Card B.
+
+tribute_summon – Card A enables or modifies the tribute summon involving Card B.
+
+fusion_summon – Card A can Fusion Summon Card B, or enables a Fusion Summon that directly involves Card B.
+
+synchro_summon – Card A enables a Synchro summon involving Card B.
+
+xyz_summon – Card A enables an Xyz summon involving Card B.
+
+link_summon – Card A enables a Link summon involving Card B.
+
+pendulum_summon – Card A enables a Pendulum summon involving Card B.
+
+
+------- SEARCH AND ADD ------- 
+
+search_deck – Card A allows the player to search the deck for Card B or a card matching its properties.
+
+add_to_hand – Card A adds Card B or a matching card to the player's hand.
+
+set_from_deck – Card A allows Card B to be set directly from the deck.
+
+mill_from_deck – Card A sends cards from the deck to the graveyard that could include Card B.
+
+excavate_deck – Card A reveals cards from the deck and may interact with Card B.
+
+
+------- GRAVEYARD INTERACTIONS ------- 
+
+send_to_graveyard – Card A sends Card B or a matching monster to the graveyard.
+
+revive_from_graveyard – Card A special summons Card B from the graveyard.
+
+banish – Card A banishes Card B or monsters matching its properties.
+
+return_from_graveyard – Card A returns Card B from the graveyard to the hand, deck, or field.
+
+
+------- FIELD INTERACTIONS ------- 
+
+destroy – Card A can destroy Card B.
+
+target – Card A can target Card B with its effect.
+
+return_to_hand – Card A can return Card B to the hand.
+
+return_to_deck – Card A can return Card B to the deck.
+
+equip – Card A can equip Card B or equip itself to Card B.
+
+unequip – Card A can remove or detach equipment involving Card B.
+
+
+------- STAT MODIFICATIONS ------- 
+
+buff_atk – Card A increases the ATK of Card B.
+
+buff_def – Card A increases the DEF of Card B.
+
+reduce_atk – Card A decreases the ATK of Card B.
+
+reduce_def – Card A decreases the DEF of Card B.
+
+change_level – Card A changes the level of Card B.
+
+change_attribute – Card A changes the attribute of Card B.
+
+change_type – Card A changes the type of Card B.
+
+
+------- PROTECTION AND NEGATION ------- 
+
+protect_monster – Card A protects Card B in a general way, for example from attacks or multiple kinds of destruction.
+
+protect_effects – Card A protects Card B from card effects.
+
+negate_activation – Card A negates the activation of effects involving Card B.
+
+negate_effect – Card A negates the effect of Card B.
+
+cannot_be_destroyed – Card A makes Card B unable to be destroyed.
+
+cannot_be_targeted – Card A makes Card B unable to be targeted.
+
+
+------- CONTROL INTERACTIONS ------- 
+
+take_control – Card A allows the player to take control of Card B.
+
+change_control – Card A changes which player controls Card B.
+
+
+------- COMBAT INTERACTIONS ------- 
+
+cannot_attack – Card A prevents Card B from attacking.
+
+force_attack – Card A forces Card B to attack.
+
+direct_attack – Card A allows Card B to attack directly.
+
+piercing_damage – Card A allows Card B to inflict piercing battle damage.
+
+
+------- OTHER INTERACTIONS ------- 
+
+draw_cards – Card A allows drawing cards based on the presence or use of Card B.
+
+discard – Card A requires discarding Card B or a matching card.
+
+pay_lp – Card A requires paying Life Points in relation to Card B.
+
+gain_lp – Card A allows gaining Life Points through Card B.
+
+skip_phase – Card A causes a phase to be skipped when Card B is involved.
